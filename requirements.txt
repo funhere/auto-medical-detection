@@ -1,0 +1,9 @@
+tqdm
+dicom2nifti
+scikit-image>=0.14
+medpy
+scipy
+numpy
+sklearn
+SimpleITK
+pandas
