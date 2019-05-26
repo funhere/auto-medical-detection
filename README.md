@@ -14,16 +14,16 @@ Major Features:
 
 
 ## Code Structure
-#### Common structure
-  - [Data analysis]: DatasetAnalyzer, Planner, Planner2D, 
-  - [Datasets]: DataLoaderBase, AbstractAugmentation, BatchGenerator2D, BatchGenerator3D
-  - [Preprocessing]: GenericPreprocessor, PreprocessorFor2D
-  - [Training]: GenericTrainer, Trainer, CascadeTrainer
-  - [Inference]:Predictor
-  - [Evaluation]: Evaluator
-  - [Models]: models/*
-  - [Utilities]: utils/*
-  - [Bin]: bins/*
+### Common structure
+1) [Data analysis]: DatasetAnalyzer, Planner, Planner2D, 
+2) [Datasets]: DataLoaderBase, AbstractAugmentation, BatchGenerator2D, BatchGenerator3D
+3) [Preprocessing]: GenericPreprocessor, PreprocessorFor2D
+4) [Training]: GenericTrainer, Trainer, CascadeTrainer
+5) [Inference]: Predictor .
+6) [Evaluation]: Evaluator .
+7) [Models]:models/* .
+8) [Utilities]: utils/* .
+9) [Bin]: bins/* .
 
 
 ## Installation
