@@ -91,7 +91,7 @@ class Planner2D(Planner):
         self.transpose_backward = [np.argwhere(np.array(self.transpose_forward) == i)[0][0] for i in range(3)]
         new_shapes = new_shapes[:, self.transpose_forward]
 
-        # we base our calculations on the median shape of the datasets
+        # Calculations are based on the median shape of the datasets
         median_shape = np.median(np.vstack(new_shapes), 0)
         print("the median shape of the dataset is ", median_shape)
 

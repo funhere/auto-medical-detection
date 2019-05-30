@@ -85,7 +85,6 @@ class Planner(object):
             region_sizes = [l for k in props_per_patient for l in props_per_patient[k]['region_volume_per_class'][c]]
             if len(region_sizes) > 0:
                 min_region_size_per_class[c] = min(region_sizes)
-                # we don't need that line but better safe than sorry, right?
                 min_region_size_per_class[c] = min(min_region_size_per_class[c], min_size_per_class[c])
             else:
                 min_region_size_per_class[c] = 0
@@ -100,13 +99,7 @@ class Planner(object):
         def get_stage_properties(current_spacing, original_spacing, original_shape, num_cases,
                                      num_modalities, num_classes):
             """
-            Computation of input patch size starts out with the new median shape (in voxels) of a dataset. This is
-            opposed to prior experiments where I based it on the median size in mm. The rationale behind this is that
-            for some organ of interest the acquisition method will most likely be chosen such that the field of view and
-            voxel resolution go hand in hand to show the doctor what they need to see. This assumption may be violated
-            for some modalities with anisotropy (cine MRI) but we will have t live with that. In future experiments I
-            will try to 1) base input patch size match aspect ratio of input size in mm (instead of voxels) and 2) to
-            try to enforce that we see the same 'distance' in all directions (try to maintain equal size in mm of patch)
+            Computation of input patch size starts out with the new median shape (in voxels) of a dataset. 
             :param current_spacing:
             :param original_spacing:
             :param original_shape:
@@ -115,9 +108,6 @@ class Planner(object):
             """
             new_median_shape = np.round(original_spacing / current_spacing * original_shape).astype(int)
             dataset_num_voxels = np.prod(new_median_shape) * num_cases
-
-            # the next line is what we had before as a default. The patch size had the same aspect ratio as the median shape of a patient. We swapped t
-            # input_patch_size = new_median_shape
 
             # compute how many voxels are one mm
             input_patch_size = 1 / np.array(current_spacing)
@@ -153,7 +143,7 @@ class Planner(object):
                                               for i in range(len(bottleneck_size_per_axis))]
                 new_shp[argsrt[0]] -= shape_must_be_divisible_by[argsrt[0]]
 
-                # we have to recompute numpool now:
+                # Recompute numpool:
                 net_num_pool_per_axis, pool_op_kernel_sizes, conv_kernel_sizes, new_shp, \
                 shape_must_be_divisible_by = get_pool_and_conv_props_poolLateV2(new_shp,
                                                                      FEATUREMAP_MIN_EDGE_LENGTH_BOTTLENECK,
@@ -192,7 +182,7 @@ class Planner(object):
             return plan
 
         use_nonzero_mask_for_normalization = self.use_norm_mask()
-        print("Are we using the nonzero maks for normalizaion?", use_nonzero_mask_for_normalization)
+        print("Normalizaion by using the nonzero maks:", use_nonzero_mask_for_normalization)
         spacings = self.dataset_properties['all_spacings']
         sizes = self.dataset_properties['all_sizes']
 
@@ -203,7 +193,7 @@ class Planner(object):
         target_spacing = self.get_target_spacing()
         new_shapes = [np.array(i) / target_spacing * np.array(j) for i, j in zip(spacings, sizes)]
 
-        # we base our calculations on the median shape of the datasets
+        # Calculations are based on the median shape.
         median_shape = np.median(np.vstack(new_shapes), 0)
         print("the median shape of the dataset is ", median_shape)
 
@@ -212,7 +202,7 @@ class Planner(object):
         min_shape = np.min(np.vstack(new_shapes), 0)
         print("the min shape in the dataset is ", min_shape)
 
-        print("we don't want feature maps smaller than ", FEATUREMAP_MIN_EDGE_LENGTH_BOTTLENECK, " in the bottleneck")
+        print("feature maps should not smaller than ", FEATUREMAP_MIN_EDGE_LENGTH_BOTTLENECK, " in the bottleneck")
 
         # how many stages will the image pyramid have?
         self.plans_per_stage = list()
@@ -227,12 +217,6 @@ class Planner(object):
             more = True
 
         if more:
-            # if we are doing more than one stage then we want the lowest stage to have exactly
-            # HOW_MUCH_OF_A_PATIENT_MUST_THE_NETWORK_SEE_AT_STAGE0 (this is 4 by default so the number of voxels in the
-            # median shape of the lowest stage must be 4 times as much as the net can process at once (128x128x128 by
-            # default). Problem is that we are downsampling higher resolution axes before we start downsampling the
-            # out-of-plane axis. We could probably/maybe do this analytically but I am lazy, so here
-            # we do it the dumb way
             lowres_stage_spacing = deepcopy(target_spacing)
             num_voxels = np.prod(median_shape)
             while num_voxels > HOW_MUCH_OF_A_PATIENT_MUST_THE_NETWORK_SEE_AT_STAGE0 * architecture_input_voxels:
@@ -297,9 +281,6 @@ class Planner(object):
         return properties
 
     def use_norm_mask(self):
-        # only use the nonzero mask for normalization of the cropping based on it resulted in a decrease in
-        # image size (this is an indication that the data is something like brats/isles and then we want to
-        # normalize in the brain region only)
         modalities = self.dataset_properties['modalities']
         num_modalities = len(list(modalities.keys()))
         use_nonzero_mask_for_norm = OrderedDict()

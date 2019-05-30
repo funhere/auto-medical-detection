@@ -2,7 +2,7 @@
 from default_configs import preprocessing_output_dir
 from utils.files_utils import *
 
-# This file is intended to double check UNets design choices. It is intended to be used for developent purposes only
+# double check UNets design choices. used for developent purposes only
 def show_plans(file):
     plans = load_pickle(file)
     print("num_classes: ", plans['num_classes'])
