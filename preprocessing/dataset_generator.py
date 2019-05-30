@@ -2,7 +2,7 @@
 from collections import OrderedDict
 from datasets.data_augmentation.aug_utils import random_cropped_2D_img_batch, pad_nd_img
 import numpy as np
-from utils.data_loader import DataLoaderBase
+from preprocessing.data_loader import DataLoaderBase
 from multiprocessing import Pool
 from default_configs import preprocessing_output_dir
 from utils.files_utils import *
@@ -30,8 +30,7 @@ class BatchGenerator3D(DataLoaderBase):
         self.has_prev_stage = has_prev_stage
         self.patch_size = patch_size
         self.list_of_keys = list(self._data.keys())
-        # need_to_pad denotes by how much we need to pad the data so that if we sample a patch of size final_patch_size
-        # (which is what the net will get) these patches will also cover the border of the patients
+
         self.need_to_pad = (np.array(patch_size) - np.array(final_patch_size)).astype(int)
         if pad_sides is not None:
             if not isinstance(pad_sides, np.ndarray):
@@ -58,8 +57,7 @@ class BatchGenerator3D(DataLoaderBase):
                 force_fg = False
 
             case_properties.append(self._data[i]['properties'])
-            # cases are stores as npz, but we require unpack_dataset to be run. This will decompress them into npy
-            # which is much faster to access
+
             if isfile(self._data[i]['data_file'][:-4] + ".npy"):
                 case_all_data = np.load(self._data[i]['data_file'][:-4] + ".npy", self.memmap_mode)
             else:
@@ -71,8 +69,7 @@ class BatchGenerator3D(DataLoaderBase):
                                                        mmap_mode=self.memmap_mode)[None]
                 else:
                     segs_from_previous_stage = np.load(self._data[i]['seg_from_prev_stage_file'])['data'][None]
-                # we theoretically support several possible previsous segmentations from which only one is sampled. But
-                # in practice this feature was never used so it's always only one segmentation
+
                 seg_key = np.random.choice(segs_from_previous_stage.shape[0])
                 seg_from_previous_stage = segs_from_previous_stage[seg_key:seg_key+1]
                 assert all([i == j for i, j in zip(seg_from_previous_stage.shape[1:], case_all_data.shape[1:])]), \
@@ -84,13 +81,10 @@ class BatchGenerator3D(DataLoaderBase):
 
             need_to_pad = self.need_to_pad
             for d in range(3):
-                # if case_all_data.shape + need_to_pad is still < patch size we need to pad more! We pad on both sides
-                # always
+                # if case_all_data.shape + need_to_pad is still < patch size pad on both sides
                 if need_to_pad[d] + case_all_data.shape[d+1] < self.patch_size[d]:
                     need_to_pad[d] = self.patch_size[d] - case_all_data.shape[d+1]
 
-            # we can now choose the bbox from -need_to_pad // 2 to shape - patch_size + need_to_pad // 2. Here we
-            # define what the upper and lower bound can be to then sample form them with np.random.randint
             shape = case_all_data.shape[1:]
             lb_x = - need_to_pad[0] // 2
             ub_x = shape[0] + need_to_pad[0] // 2 + need_to_pad[0] % 2 - self.patch_size[0]
@@ -99,8 +93,6 @@ class BatchGenerator3D(DataLoaderBase):
             lb_z = - need_to_pad[2] // 2
             ub_z = shape[2] + need_to_pad[2] // 2 + need_to_pad[2] % 2 - self.patch_size[2]
 
-            # if not force_fg then we can just sample the bbox randomly from lb and ub. Else we need to make sure we get
-            # at least one of the foreground classes in the patch
             if not force_fg:
                 bbox_x_lb = np.random.randint(lb_x, ub_x + 1)
                 bbox_y_lb = np.random.randint(lb_y, ub_y + 1)
@@ -124,8 +116,7 @@ class BatchGenerator3D(DataLoaderBase):
                     bbox_y_lb = max(lb_y, selected_voxel[1] - self.patch_size[1] // 2)
                     bbox_z_lb = max(lb_z, selected_voxel[2] - self.patch_size[2] // 2)
                 else:
-                    # If the selected class is indeed not present then we fall back to random cropping. We can do that
-                    # because this case is extremely rare.
+
                     bbox_x_lb = np.random.randint(lb_x, ub_x + 1)
                     bbox_y_lb = np.random.randint(lb_y, ub_y + 1)
                     bbox_z_lb = np.random.randint(lb_z, ub_z + 1)
@@ -246,12 +237,11 @@ class BatchGenerator2D(DataLoaderBase):
                 force_fg = False
 
             if not isfile(self._data[i]['data_file'][:-4] + ".npy"):
-                # lets hope you know what you're doing
                 case_all_data = np.load(self._data[i]['data_file'][:-4] + ".npz")['data']
             else:
                 case_all_data = np.load(self._data[i]['data_file'][:-4] + ".npy", self.memmap_mode)
 
-            # this is for when there is just a 2d slice in case_all_data (2d support)
+            # 2d slice in case_all_data (2d support)
             if len(case_all_data.shape) == 3:
                 case_all_data = case_all_data[:, None]
 
@@ -314,10 +304,6 @@ class BatchGenerator2D(DataLoaderBase):
 
             num_seg = 1
 
-            # why we need this is a little complicated. It has to do with downstream random cropping during data
-            # augmentation. Basically we will rotate the patch and then to a center crop of size self.final_patch_size.
-            # Depending on the rotation, scaling and elastic deformation parameters, self.patch_size has to be large
-            # enough to prevent border artifacts from being present in the final patch
             new_shp = None
             if np.any(self.need_to_pad) > 0:
                 new_shp = np.array(case_all_data.shape[1:] + self.need_to_pad)
@@ -378,7 +364,7 @@ def save_as_npz(args):
 
 def unpack_dataset(folder, threads=8, key="data"):
     """
-    unpacks all npz files in a folder to npy (whatever you want to have unpacked must be saved unter key)
+    unpacks all npz files in a folder to npy
     :param folder:
     :param threads:
     :param key:
@@ -408,7 +394,6 @@ def delete_npy(folder):
 
 
 def load_dataset(folder):
-    # we don't load the actual data but instead return the filename to the np file. the properties are loaded though
     case_identifiers = get_patientIDs(folder)
     case_identifiers.sort()
     dataset = OrderedDict()
@@ -434,9 +419,8 @@ def crop_2D_img(img, crop_size, force_class=None):
         crop_size = [crop_size] * (len(img.shape) - 1)
     else:
         assert len(crop_size) == (len(
-            img.shape) - 1), "If you provide a list/tuple as center crop make sure it has the same len as your data has dims (3d)"
+            img.shape) - 1), "If center crop is a list/tuple, make sure it has the same length as data has dims (3d)"
 
-    # we need to find the center coords that we can crop to without exceeding the image border
     lb_x = crop_size[0] // 2
     ub_x = img.shape[1] - crop_size[0] // 2 - crop_size[0] % 2
     lb_y = crop_size[1] // 2

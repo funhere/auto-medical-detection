@@ -156,7 +156,6 @@ def get_patientID_from_files(data_files, seg_file=None):
 
 def crop_to_nonzero(data, seg=None, nonzero_label=-1):
     """
-
     :param data:
     :param seg:
     :param nonzero_label: this will be written into the segmentation map

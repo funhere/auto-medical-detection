@@ -14,7 +14,6 @@ from multiprocessing.pool import Pool
 class GenericPreprocessor(object):
     def __init__(self, normalization_scheme_per_modality, use_nonzero_mask, intensityproperties=None):
         """
-
         :param normalization_scheme_per_modality: dict {0:'nonCT'}
         :param use_nonzero_mask: {0:False}
         :param intensityproperties:
@@ -57,7 +56,7 @@ class GenericPreprocessor(object):
             scheme = self.normalization_scheme_per_modality[c]
             if scheme == "CT":
                 # clip to lb and ub from train data foreground and use foreground mn and sd from training data
-                assert self.intensityproperties is not None, "if there is a CT then we need intensity properties"
+                assert self.intensityproperties is not None, "if it is a CT then need intensity properties"
                 mean_intensity = self.intensityproperties[c]['mean']
                 std_intensity = self.intensityproperties[c]['sd']
                 lower_bound = self.intensityproperties[c]['percentile_00_5']
@@ -68,7 +67,7 @@ class GenericPreprocessor(object):
                     data[c][seg[-1] < 0] = 0
             elif scheme == "CT2":
                 # clip to lb and ub from train data foreground, use mn and sd form each case for normalization
-                assert self.intensityproperties is not None, "if there is a CT then we need intensity properties"
+                assert self.intensityproperties is not None, "if it is a CT then need intensity properties"
                 lower_bound = self.intensityproperties[c]['percentile_00_5']
                 upper_bound = self.intensityproperties[c]['percentile_99_5']
                 mask = (data[c] > lower_bound) & (data[c] < upper_bound)
@@ -204,7 +203,7 @@ class Preprocessor2D(GenericPreprocessor):
             scheme = self.normalization_scheme_per_modality[c]
             if scheme == "CT":
                 # clip to lb and ub from train data foreground and use foreground mn and sd from training data
-                assert self.intensityproperties is not None, "if there is a CT then we need intensity properties"
+                assert self.intensityproperties is not None, "if it is a CT then need intensity properties"
                 mean_intensity = self.intensityproperties[c]['mean']
                 std_intensity = self.intensityproperties[c]['sd']
                 lower_bound = self.intensityproperties[c]['percentile_00_5']
@@ -215,7 +214,7 @@ class Preprocessor2D(GenericPreprocessor):
                     data[c][seg[-1] < 0] = 0
             elif scheme == "CT2":
                 # clip to lb and ub from train data foreground, use mn and sd form each case for normalization
-                assert self.intensityproperties is not None, "if there is a CT then we need intensity properties"
+                assert self.intensityproperties is not None, "if it is a CT then need intensity properties"
                 lower_bound = self.intensityproperties[c]['percentile_00_5']
                 upper_bound = self.intensityproperties[c]['percentile_99_5']
                 mask = (data[c] > lower_bound) & (data[c] < upper_bound)
@@ -255,7 +254,7 @@ def resample_patient(data, seg, original_spacing, target_spacing, order_data=3, 
     :param target_spacing:
     :param order_data:
     :param order_seg:
-    :param force_separate_z: if None then we dynamically decide how to resample along z, if True/False then always
+    :param force_separate_z: if None then dynamically decide how to resample along z, if True/False then always
     /never resample along z separately
     :param order_z_seg: only applies if do_separate_z is True
     :param order_z_data: only applies if do_separate_z is True
@@ -349,7 +348,7 @@ def resample_data_or_seg(data, new_shape, is_seg, axis=None, order=3, do_separat
                 reshaped_data = np.stack(reshaped_data, axis)
                 if shape[axis] != new_shape[axis]:
 
-                    # The following few lines are blatantly copied and modified from sklearn's resize()
+                    # blatantly copied and modified from sklearn's resize()
                     rows, cols, dim = new_shape[0], new_shape[1], new_shape[2]
                     orig_rows, orig_cols, orig_dim = reshaped_data.shape#data[c].shape[0], reshaped_data.shape[1], reshaped_data.shape[2]
 
