@@ -86,7 +86,8 @@ class Convert2DTo3DAugmentation(AbstractAugmentation):
 class ConvertSegToRegionsAug(AbstractAugmentation):
     def __init__(self, regions, seg_key="seg", output_key="seg", seg_channel=0):
         """
-        regions are tuple of tuples where each inner tuple holds the class indices that are merged into one region, example:
+        regions are tuple of tuples where each inner tuple holds the class indices that are merged into one region, 
+        example:
         regions= ((1, 2), (2, )) will result in 2 regions: one covering the region of labels 1&2 and the other just 2
         :param regions:
         :param seg_key:
@@ -190,7 +191,6 @@ class ApplyRandBinaryOperatorAug(AbstractAugmentation):
     def __init__(self, channel_idx, p_per_sample=0.3, any_of_these=(binary_dilation, binary_erosion, binary_closing, binary_opening),
                  key="data", strel_size=(1, 10)):
         """
-
         :param channel_idx: can be list or int
         :param p_per_sample:
         :param any_of_these:
@@ -222,9 +222,6 @@ class ApplyRandBinaryOperatorAug(AbstractAugmentation):
                     res = operation(workon, selem).astype(workon.dtype)
                     data[b, c] = res
 
-                    # if class was added, we need to remove it in ALL other channels to keep one hot encoding
-                    # properties
-                    # we modify data
                     other_ch = [i for i in ch if i != c]
                     if len(other_ch) > 0:
                         was_added_mask = (res - workon) > 0

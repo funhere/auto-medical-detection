@@ -20,7 +20,7 @@ def convert_to_submission(source_dir, target_dir):
 if __name__ == "__main__":
     folder = "/media/simon/med/datasets/ACDC/training"
     folder_test = "/media/simon/med/datasets/ACDC/testing/testing"
-    out_folder = "/media/simon/med/MedicalDecathlon/MedicalDecathlon_raw_splitted/Task27_ACDC"
+    out_folder = "/media/simon/med/MedicalDecathlon/MedicalDecathlon_raw_splitted/Task_ACDC"
 
     maybe_mkdir_p(join(out_folder, "imagesTr"))
     maybe_mkdir_p(join(out_folder, "imagesTs"))
@@ -91,4 +91,4 @@ if __name__ == "__main__":
         val_patients = patients[val]
         splits[-1]['val'] = [i[:-12] for i in all_train_files if i[:10] in val_patients]
 
-    save_pickle(splits, "/media/simon/unet/Task27_ACDC/splits_final.pkl")
+    save_pickle(splits, "/media/simon/unet/Task_ACDC/splits_final.pkl")

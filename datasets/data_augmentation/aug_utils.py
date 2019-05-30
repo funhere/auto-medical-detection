@@ -31,7 +31,8 @@ def gen_zero_centered_coord_mesh(shape):
 
 def convert_seg_to_one_hot_encoding(image, classes=None):
     '''
-    Input: an nd array of a label map (any dimension). Outputs: a one hot encoding of the label map.
+    Input: an nd array of a label map (any dimension). 
+    Outputs: a one hot encoding of the label map.
     Example (3D): if input is of shape (x, y, z), the output will ne of shape (n_classes, x, y, z)
     '''
     if classes is None:

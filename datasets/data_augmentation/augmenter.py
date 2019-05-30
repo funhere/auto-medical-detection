@@ -233,43 +233,6 @@ class GammaTransform(AbstractAugmentation):
 #####################################    
 class SpatialTransform(AbstractAugmentation):
     """The ultimate spatial transform generator. Rotation, deformation, scaling, cropping: 
-
-    Args:
-        patch_size (tuple/list/ndarray of int): Output patch size
-
-        patch_center_dist_from_border (tuple/list/ndarray of int, or int): Recommended to use patch_size//2.
-        This only applies when random_crop=True
-
-        do_elastic_deform (bool): Whether or not to apply elastic deformation
-
-        alpha (tuple of float): magnitude of the elastic deformation; randomly sampled from interval
-
-        sigma (tuple of float): scale of the elastic deformation (small = local, large = global); randomly sampled
-        from interval
-
-        do_rotation (bool): Whether or not to apply rotation
-
-        angle_x, angle_y, angle_z (tuple of float): angle in rad; randomly sampled from interval. Always double check
-        whether axes are correct!
-
-        do_scale (bool): Whether or not to apply scaling
-
-        scale (tuple of float): scale range ; scale is randomly sampled from interval
-
-        border_mode_data: How to treat border pixels in data? see scipy.ndimage.map_coordinates
-
-        border_cval_data: If border_mode_data=constant, what value to use?
-
-        order_data: Order of interpolation for data. see scipy.ndimage.map_coordinates
-
-        border_mode_seg: How to treat border pixels in seg? see scipy.ndimage.map_coordinates
-
-        border_cval_seg: If border_mode_seg=constant, what value to use?
-
-        order_seg: Order of interpolation for seg. 
-
-        random_crop: True: do a random crop of size patch_size and minimal distance to border of
-        patch_center_dist_from_border. False: do a center crop of size patch_size
     """
     def __init__(self, patch_size, patch_center_dist_from_border=30,
                  do_elastic_deform=True, alpha=(0., 1000.), sigma=(10., 13.),
@@ -421,12 +384,11 @@ class SpatialTransform(AbstractAugmentation):
 
 
 class MirrorTransform(AbstractAugmentation):
-    """ Randomly mirrors data along specified axes. Mirroring is evenly distributed. Probability of mirroring along
-    each axis is 0.5
-
+    """ Randomly mirrors data along specified axes. Mirroring is evenly distributed. 
+    Probability of mirroring along each axis is 0.5
+    
     Args:
         axes (tuple of int): axes along which to mirror
-
     """
     def __init__(self, axes=(0, 1, 2), data_key="data", label_key="seg"):
         self.data_key = data_key
@@ -484,10 +446,8 @@ class DataChannelSelectionTransform(AbstractTransform):
 
 class SegChannelSelectionTransform(AbstractTransform):
     """Segmentations may have more than one channel. This transform selects segmentation channels
-
     Args:
         channels (list of int): List of channels to be kept.
-
     """
 
     def __init__(self, channels, keep_discarded_seg=False, label_key="seg"):
@@ -499,7 +459,7 @@ class SegChannelSelectionTransform(AbstractTransform):
         seg = data_dict.get(self.label_key)
 
         if seg is None:
-            warn("You used SegChannelSelectionTransform but there is no 'seg' key in your data_dict, returning data_dict unmodified", Warning)
+            warn("No 'seg' key in data_dict while SegChannelSelectionTransform, returning data_dict unmodified", Warning)
         else:
             if self.keep_discarded:
                 discarded_seg_idx = [i for i in range(len(seg[0])) if i not in self.channels]
@@ -543,24 +503,16 @@ def pin_memory_loop(in_queues, out_queue):
         
         
 class MultiThreadedAugmenter(object):
-    """ Makes your pipeline multi threaded. Yeah!
+    """ Makes pipeline multi threaded. 
 
     Args:
-        data_loader (generator or DataLoaderBase instance): Your data loader. Must have a .next() function and return
-        a dict that complies with our data structure
-
-        transform (Transform instance): Any of our transformations. If you want to use multiple transformations then
-        use our Compose transform! Can be None (in that case no transform will be applied)
-
-        num_processes (int): number of processes
-
-        num_cached_per_queue (int): number of batches cached per process (each process has its own
-        multiprocessing.Queue). We found 2 to be ideal.
-
-        seeds (list of int): one seed for each worker. Must have len(num_processes).
-        If None then seeds = range(num_processes)
-
-        pin_memory (bool): set to True if all torch tensors in data_dict are to be pinned. Pytorch only.
+     :data_loader (generator or DataLoaderBase instance): data loader. Must have a .next() function and return
+        a dict that complies with data structure
+     :transform (Transform instance): Any of transformations. 
+     :num_processes (int): number of processes
+     :num_cached_per_queue (int): number of batches cached per process. 2 to be ideal.
+     :seeds (list of int): one seed for each worker. Must have length.If None then seeds = range(num_processes)
+     pin_memory (bool): set to True if all torch tensors in data_dict are to be pinned. Pytorch only.
     """
     def __init__(self, data_loader, transform, num_processes, num_cached_per_queue=2, seeds=None, pin_memory=False):
         self.pin_memory = pin_memory

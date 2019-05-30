@@ -7,7 +7,7 @@ from datasets.data_augmentation.augmentater import MultiThreadedAugmenter, \
     NumpyToTensor, RemoveLabelTransform
 
 from datasets.data_augmentation.custom_augmenation import MoveSegAsOneHotToData, \
-    RemoveRandomConnectedComponentFromOneHotEncodingTransform, ApplyRandomBinaryOperatorTransform, \
+    RemoveRandConnectedComponentFromOneHotEncodingAug, ApplyRandomBinaryOperatorTransform, \
     Convert3DTo2DTransform, Convert2DTo3DTransform, MaskTransform 
     
 def get_patch_size(final_patch_size, rot_x, rot_y, rot_z, scale_range):
@@ -77,7 +77,7 @@ def get_default_aug(dl_train, dl_val, patch_size, params=None, border_val_seg=-1
                                                                     p_per_sample=0.4,
                                                                     key="data",
                                                                     strel_size=(1, 8)))
-            tr_transforms.append(RemoveRandomConnectedComponentFromOneHotEncodingTransform(channel_idx=list(range(-len(params.get("all_segmentation_labels")), 0)),
+            tr_transforms.append(RemoveRandConnectedComponentFromOneHotEncodingAug(channel_idx=list(range(-len(params.get("all_segmentation_labels")), 0)),
                                                                                            key="data",
                                                                                            p_per_sample=0.2,
                                                                                            fill_with_other_class_p=0.0,
