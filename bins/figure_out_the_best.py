@@ -17,11 +17,11 @@ def convert_nifti_to_uint8(args):
 
 
 if __name__ == "__main__":
-    # This script was hacked together at some point and is ugly af. TODO this needs to be redone properly
+
     import argparse
-    parser = argparse.ArgumentParser(usage="This is intended to identify the best model based on the five fold "
-                                           "cross-validation. Running this script requires alle models to have been run "
-                                           "already. This script will summarize the results of the five folds of all "
+    parser = argparse.ArgumentParser(usage="To identify the best model based on the five fold cross-validation."
+                                           "Running this script requires all models to have been run already."
+                                           "It will summarize the results of the five folds of all "
                                            "models in one json each for easy interpretability")
     parser.add_argument("-m", '--models', nargs="+", required=False, default=['2d', '3d_lowres', '3d_fullres', '3d_cascade_fullres'])
     parser.add_argument("-t", '--task_ids', nargs="+", required=False, default=list(range(100)))
@@ -70,14 +70,14 @@ if __name__ == "__main__":
                     print(net1_folder, net2_folder)
                     p = call(["python", join(__path__[0], "evaluation/model_selection/ensemble.py"), net1_folder, net2_folder, output_folder, task_name])
 
-    # now rerun adding the mean foreground dice
+    # rerun adding the mean foreground dice
     json_files = subfiles(out_dir_all_json, suffix=".json", join=True)
 
     # do mean over foreground
     for j in json_files:
         classes_dice_mean(j)
 
-    # now load all json for each task and find best
+    # load all json for each task and find best
     with open(join(net_training_out_dir, "use_this_for_test.csv"), 'w') as f:
         for t in tasks:
             json_files_task = subfiles(out_dir_all_json, prefix="Task%02.0d_" % t)

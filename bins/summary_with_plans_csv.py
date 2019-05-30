@@ -85,7 +85,7 @@ def main():
                             mn_glob_dc = np.mean(list(g_dc.values()))
 
                             store_plans_to_file(f, plans_file, stage, False, name)
-                            # now read and add result to end of line
+                            # read and add result to end of line
                             results = load_json(join(summary_folder, s))
                             mean_dc = results['results']['mean']['mean']['Dice']
                             f.write(";%03.3f" % mean_dc)

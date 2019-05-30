@@ -7,67 +7,40 @@ from utils.exp_utils import prep_exp
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", '--input_folder', help="Must contain all modalities for each patient in the correct"
-                                                           " order (same as training). Files must be named "
-                                                           "CASENAME_XXXX.nii.gz where XXXX is the modality "
-                                                           "identifier (0000, 0001, etc)", required=True)
+    parser.add_argument("-i", '--input_folder', 
+                        help="Should contain all modalities for each patient in the correct order(same as training).", 
+                             required=True)
     parser.add_argument('-o', "--output_folder", required=True, help="folder for saving predictions")
-    parser.add_argument('-t', '--task_name', help='task name, required.',
+    parser.add_argument('-t', '--task_name', 
+                        help='task name, required.',
                         default=default_plans_identifier, required=True)
 
     parser.add_argument('-tr', '--unet_trainer', help='UNet trainer class. Default: Trainer', required=False,
                         default='Trainer')
     parser.add_argument('-m', '--model', help="2d, 3d_lowres, 3d_fullres or 3d_cascade_fullres. Default: 3d_fullres",
                         default="3d_fullres", required=False)
-    parser.add_argument('-p', '--plans_identifier', help='do not touch this unless you know what you are doing',
+    parser.add_argument('-p', '--plans_identifier', help='plans ID',
                         default=default_plans_identifier, required=False)
 
-    parser.add_argument('-f', '--folds', nargs='+', default='None', help="folds to use for prediction. Default is None "
-                                                                       "which means that folds will be detected "
-                                                                       "automatically in the model output folder")
-    parser.add_argument('-z', '--save_npz', required=False, action='store_true', help="use this if you want to ensemble"
-                                                                                      " these predictions with those of"
-                                                                                      " other models. Softmax "
-                                                                                      "probabilities will be saved as "
-                                                                                      "compresed numpy arrays in "
-                                                                                      "output_folder and can be merged "
-                                                                                      "between output_folders with "
-                                                                                      "merge_predictions.py")
-    parser.add_argument('-l', '--lowres_segmentations', required=False, default='None', help="if model is the highres "
-                         "stage of the cascade then you need to use -l to specify where the segmentations of the "
-                         "corresponding lowres unet are. Here they are required to do a prediction")
-    parser.add_argument("--part_id", type=int, required=False, default=0, help="Used to parallelize the prediction of "
-                                                                               "the folder over several GPUs. If you "
-                                                                               "want to use n GPUs to predict this "
-                                                                               "folder you need to run this command "
-                                                                               "n times with --part_id=0, ... n-1 and "
-                                                                               "--num_parts=n (each with a different "
-                                                                               "GPU (for example via "
-                                                                               "CUDA_VISIBLE_DEVICES=X)")
-    parser.add_argument("--num_parts", type=int, required=False, default=1, help="Used to parallelize the prediction of "
-                                                                               "the folder over several GPUs. If you "
-                                                                               "want to use n GPUs to predict this "
-                                                                               "folder you need to run this command "
-                                                                               "n times with --part_id=0, ... n-1 and "
-                                                                               "--num_parts=n (each with a different "
-                                                                               "GPU (via "
-                                                                               "CUDA_VISIBLE_DEVICES=X)")
-    parser.add_argument("--num_threads_preprocessing", required=False, default=6, type=int, help=
-                        "Determines many background processes will be used for data preprocessing. Reduce this if you "
-                        "run into out of memory (RAM) problems. Default: 6")
-    parser.add_argument("--num_threads_nifti_save", required=False, default=2, type=int, help=
-                        "Determines many background processes will be used for segmentation export. Reduce this if you "
-                        "run into out of memory (RAM) problems. Default: 2")
-    parser.add_argument("--tta", required=False, type=int, default=1, help="Set to 0 to disable test time data "
-                                                                           "augmentation (speedup of factor "
-                                                                           "4(2D)/8(3D)), "
-                                                                           "lower quality segmentations")
-    parser.add_argument("--overwrite_existing", required=False, type=int, default=1, help="Set this to 0 if you need "
-                                                                                          "to resume a previous "
-                                                                                          "prediction. Default: 1 "
-                                                                                          "(=existing segmentations "
-                                                                                          "in output_folder will be "
-                                                                                          "overwritten)")
+    parser.add_argument('-f', '--folds', nargs='+', default='None', 
+                        help="folds to use for prediction. Default is None ")
+    parser.add_argument('-z', '--save_npz', required=False, action='store_true', 
+                        help="use this if you want to ensemble")
+    parser.add_argument('-l', '--lowres_segmentations', required=False, default='None', 
+                        help="if model is the highres, need to use -l to specify where the segmentations of the "
+                         "corresponding lowres unet are. and required to do a prediction")
+    parser.add_argument("--part_id", type=int, required=False, default=0, 
+                        help="Used to parallelize the prediction of the folder over several GPUs.")
+    parser.add_argument("--num_parts", type=int, required=False, default=1, 
+                        help="Used to parallelize the prediction of the folder over several GPUs.")
+    parser.add_argument("--num_threads_preprocessing", required=False, default=6, type=int, 
+                        help="Determines many background processes will be used for data preprocessing. Default: 6")
+    parser.add_argument("--num_threads_nifti_save", required=False, default=2, type=int, 
+                        help="Determines many background processes will be used for segmentation export. Default: 2")
+    parser.add_argument("--tta", required=False, type=int, default=1, 
+                        help="test time data augmentation. 0: disable; (e.g. speedup of factor 4(2D)/8(3D)).")
+    parser.add_argument("--overwrite_existing", required=False, type=int, default=1, 
+                        help="Set this to 0 if you need to resume a previous prediction. ")
     parser.add_argument('--exp_dir', type=str, default='/path/to/experiment/directory',
                         help='path to experiment dir. will be created if non existent.')
     parser.add_argument('--server_env', default=False, action='store_true',

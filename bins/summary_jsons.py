@@ -86,10 +86,11 @@ def summarize(tasks, models=('2d', '3d_lowres', '3d_fullres', '3d_cascade_fullre
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(usage="This is intended to identify the best model based on the five fold "
-                                           "cross-validation. Running this script requires alle models to have been run "
-                                           "already. This script will summarize the results of the five folds of all "
-                                           "models in one json each for easy interpretability")
+    parser = argparse.ArgumentParser(usage="To identify the best model based on the five fold cross-validation."
+                                           " Running this script requires alle models to have been run already."
+                                           "It will summarize the results of the five folds of all models in one"
+                                           "json each for easy interpretability.")
+                                           
     parser.add_argument("-t", '--task_ids', nargs="+", required=True, help="task id. can be 'all'")
     parser.add_argument("-f", '--folds', nargs="+", required=False, type=int, default=[0, 1, 2, 3, 4])
     parser.add_argument("-m", '--models', nargs="+", required=False, default=['2d', '3d_lowres', '3d_fullres', '3d_cascade_fullres'])

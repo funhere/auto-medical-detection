@@ -49,14 +49,13 @@ def merge(folders, output_folder, threads, override=True):
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="This requires that all folders to be merged use the same "
-                                                 "postprocessing function "
-                                                 "(postprocessing.postprocess_segmentation). ")
-    parser.add_argument('-f', '--folders', nargs='+', help="list of folders to merge. All folders must contain npz "
-                                                           "files", required=True)
-    parser.add_argument('-o', '--output_folder', help="where to save the results", required=True, type=str)
-    parser.add_argument('-t', '--threads', help="number of threads used to saving niftis", required=False, default=2,
-                        type=int)
+    parser = argparse.ArgumentParser(description="This requires that all folders to be merged use the same postprocessing function ")
+    parser.add_argument('-f', '--folders', nargs='+', 
+                        help="list of folders to merge. All folders must contain npz files", required=True)
+    parser.add_argument('-o', '--output_folder', 
+                        help="where to save the results", required=True, type=str)
+    parser.add_argument('-t', '--threads', 
+                        help="number of threads used to saving niftis", required=False, default=2, type=int)
 
     args = parser.parse_args()
 

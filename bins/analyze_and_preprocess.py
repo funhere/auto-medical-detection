@@ -126,14 +126,9 @@ def plan_and_preprocess(task_string, num_threads=8, no_preprocessing=False):
     if not no_preprocessing:
         exp_planner.do_preprocessing(num_threads)
 
-    # write which class is in which slice to all training cases (required to speed up 2D Dataloader)
-    # This is done for all data so that if we wanted to use them with 2D we could do so
-
     if not no_preprocessing:
         p = Pool(8)
 
-        # if there is more than one my_data_identifier (different brnaches) then this code will run for all of them if
-        # they start with the same string. not problematic, but not pretty
         stages = [i for i in subdirs(preprocessing_out_dir_train, join=True, sort=True)
                   if i.split("/")[-1].find("stage") != -1]
         for s in stages:
@@ -153,22 +148,19 @@ def plan_and_preprocess(task_string, num_threads=8, no_preprocessing=False):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--task', type=str, help="task name. There must be a matching folder in "
+    parser.add_argument('-t', '--task', type=str, 
+                        help="task name. There should be a matching folder in "
                                                        "raw_dataset_dir", required=True)
-    parser.add_argument('-p', '--processes', type=int, default=3, help='number of processes to do preprocessing '
-                                                                       'of full resolution data. If you run out '
-                                                                       'of memory, reduce these. Default: 3', required=False)
-    parser.add_argument('-o', '--override', type=int, default=0, help="set this to 1 if you want to override "
-                                                                      "cropped data and intensityproperties. Default: 0",
+    parser.add_argument('-p', '--processes', type=int, default=3, 
+                        help='number of processes to do preprocessing, Default: 3', required=False)
+    parser.add_argument('-o', '--override', type=int, default=0, 
+                        help="1: override cropped data and intensityproperties. Default: 0",
                         required=False)
-    parser.add_argument('-s', '--use_splitted', type=int, default=1, help='1 = use splitted data if already present ('
-                                                                          'skip split_4D). 0 = do splitting again. '
-                                                                          'It is save to set this to 1 at all times '
-                                                                          'unless the dataset was updated in the '
-                                                                          'meantime. Default: 1', required=False)
-    parser.add_argument('-no_preprocessing', type=int, default=0, help='debug only. If set to 1 this will run only'
-                                                                       'experiment planning and not run the '
-                                                                       'preprocessing')
+    parser.add_argument('-s', '--use_splitted', type=int, default=1, 
+                        help='1: use splitted data if already present (skip split_4D).' 
+                        '0: do splitting again. Default: 1', required=False)
+    parser.add_argument('-no_preprocessing', type=int, default=0, 
+                        help='debug only. 1: only run experiment planning, not run preprocessing.')
 
     args = parser.parse_args()
     task = args.task

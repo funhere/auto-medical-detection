@@ -21,21 +21,19 @@ def main():
     parser.add_argument("-p", help="plans identifier", default=default_plans_identifier, required=False)
     parser.add_argument("-u", "--unpack_data", help="Leave it as 1, development only", required=False, default=1,
                         type=int)
-    parser.add_argument("--ndet", help="Per default training is deterministic, "
-                                                   "nondeterministic allows cudnn.benchmark which will can give up to "
-                                                   "20%% performance. Set this to do nondeterministic training",
+    parser.add_argument("--ndet", 
+                        help="nondeterministic training, it allows cudnn.benchmark which will can increase performance."
+                        "default training is deterministic.",
                         required=False, default=False, action="store_true")
-    parser.add_argument("--npz", required=False, default=False, action="store_true", help="if set then UNet will "
-                                                                                          "export npz files of "
-                                                                                          "predicted segmentations "
-                                                                                          "in the vlaidation as well.")
-    parser.add_argument("--find_lr", required=False, default=False, action="store_true", help="not used here, just for fun")
-    parser.add_argument("--valbest", required=False, default=False, action="store_true", help="hands off. This is not intended to be used")
+    parser.add_argument("--npz", required=False, default=False, action="store_true", 
+                        help="if set then UNet will export npz files of predicted segmentations in the vlaidation as well.")
+    parser.add_argument("--find_lr", required=False, default=False, action="store_true", help="not used, for analysis only.")
+    parser.add_argument("--valbest", required=False, default=False, action="store_true", help="hands off. for analysis only.")
     parser.add_argument('--exp_dir', type=str, default='/path/to/experiment/directory',
                         help='path to experiment dir. will be created if non existent.')
     parser.add_argument('--server_env', default=False, action='store_true',
                         help='change IO settings to deploy models on a cluster.')
-    parser.add_argument('--exp_source', type=str, default='experiments/toy_exp',
+    parser.add_argument('--exp_source', type=str, default='experiments/demo_exp',
                         help='specifies, from which source experiment to load configs and data_loader.')
     
     args = parser.parse_args()
@@ -73,8 +71,7 @@ def main():
 
     if net == "3d_cascade_fullres":
         assert issubclass(trainer_class, CascadeTrainer), "If running 3d_cascade_fullres then your " \
-                                                                       "trainer class must be derived from " \
-                                                                       "CascadeTrainer"
+                           "trainer class must be derived from CascadeTrainer."
     else:
         assert issubclass(trainer_class, Trainer), "net_trainer was found but is not derived from Trainer"
 
