@@ -73,7 +73,7 @@ class DefaultConfigs:
         #   Testing / Plotting  #
         #########################
 
-        # perform mirroring at test time. (only XY. Z not done to not blow up predictions times).
+        # perform mirroring at test time. (only XY).
         self.test_aug = True
 
         # if True, test data lies in a separate folder and is not part of the cross validation.

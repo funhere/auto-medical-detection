@@ -91,7 +91,7 @@ class configs(DefaultConfigs):
         self.FEATUREMAP_MIN_EDGE_LENGTH_BOTTLENECK = 4
         self.FEATUREMAP_MIN_EDGE_LENGTH_BOTTLENECK2 = 6
         # z is defined as the axis with the highest spacing, also used to
-        # determine whether we use 2d or 3d data augmentation
+        # determine whether to use 2d or 3d data augmentation
         self.RESAMPLING_SEPARATE_Z_ANISOTROPY_THRESHOLD = 3  
         # 1/4 of a patient
         self.HOW_MUCH_OF_A_PATIENT_MUST_THE_NETWORK_SEE_AT_STAGE0 = 4  
@@ -149,9 +149,8 @@ class configs(DefaultConfigs):
         self.model_selection_criteria = ['malignant_ap', 'benign_ap'] # criteria to average over for saving epochs.
         self.min_det_thresh = 0.1  # minimum confidence value to select predictions for evaluation.
 
-        # threshold for clustering predictions together (wcs = weighted cluster scoring).
-        # needs to be >= the expected overlap of predictions coming from one model (typically NMS threshold).
-        # if too high, preds of the same object are separate clusters.
+        # threshold of wcs (weighted cluster scoring), used for clustering predictions together.
+        # needs to be >= the expected overlap of predictions coming from one model.(typically NMS threshold).
         self.wcs_iou = 1e-5
 
         self.plot_prediction_histograms = True
@@ -303,8 +302,7 @@ class configs(DefaultConfigs):
         # feature map strides per pyramid level are inferred from architecture.
         self.backbone_strides = {'xy': [4, 8, 16, 32], 'z': [1, 2, 4, 8]}
 
-        # anchor scales are chosen according to expected object sizes in data set. Default uses only one anchor scale
-        # per pyramid level. (outer list are pyramid levels (corresponding to BACKBONE_STRIDES), inner list are scales per level.)
+        # anchor scales are chosen according to expected object sizes in data set. 
         self.rpn_anchor_scales = {'xy': [[8], [16], [32], [64]], 'z': [[2], [4], [8], [16]]}
 
         # choose which pyramid levels to extract features from: P2: 0, P3: 1, P4: 2, P5: 3.
@@ -326,7 +324,7 @@ class configs(DefaultConfigs):
         self.roi_positive_ratio = 0.5
         self.anchor_matching_iou = 0.7
 
-        # factor of top-k candidates to draw from  per negative sample (stochastic-hard-example-mining).
+        # factor of top-k candidates to draw from per negative sample.
         # poolsize to draw top-k candidates from will be shem_poolsize * n_negative_samples.
         self.shem_poolsize = 10
 
