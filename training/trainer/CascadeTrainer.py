@@ -32,8 +32,6 @@ class CascadeTrainer(Trainer):
                     "Cannot run final stage of cascade. Run corresponding 3d_lowres first and predict the "
                     "segmentations for the next stage")
             self.folder_with_segs_from_prev_stage = folder_with_segs_prev_stage
-            # Do not put segs_prev_stage into self.output_folder as we need to unpack them for performance and we
-            # don't want to do that in self.output_folder because that one is located on some net drive.
             self.folder_with_segs_from_prev_stage_for_train = join(self.dataset_directory, "segs_prev_stage")
         else:
             self.folder_with_segs_from_prev_stage = None
@@ -95,8 +93,6 @@ class CascadeTrainer(Trainer):
         if training:
             # copy segs from prev stage to separate folder and extract them
 
-            # If we don't do this then we need to make sure to manually delete the folder if we want to update
-            # segs_from_prev_stage. I will probably forget to do so, so I leave this in as a safeguard
             if isdir(self.folder_with_segs_from_prev_stage_for_train):
                 shutil.rmtree(self.folder_with_segs_from_prev_stage_for_train)
 
@@ -105,7 +101,7 @@ class CascadeTrainer(Trainer):
             for s in segs_from_prev_stage_files:
                 shutil.copy(s, self.folder_with_segs_from_prev_stage_for_train)
 
-            # if we don't do this then performance is shit
+            # if not do this then performance is shit
             if self.unpack_data:
                 unpack_dataset(self.folder_with_segs_from_prev_stage_for_train)
 

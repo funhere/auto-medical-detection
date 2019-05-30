@@ -29,10 +29,9 @@ def recursive_find_trainer(folder, trainer_name, current_module):
 
 def search_and_load_model(pkl_file, checkpoint=None, train=False):
     """
-    This is a utility function to load any UNet trainer from a pkl. It will recursively search
-    UNet.trainig.net_training for the file that contains the trainer and instantiate it with the arguments saved in the pkl file. If checkpoint
-    is specified, it will furthermore load the checkpoint file in train/test mode (as specified by train).
-    The pkl file required here is the one that will be saved automatically when calling Trainer.store_checkpoint.
+    Load any trainer from a pkl. It will recursively search trainig.Trainer. 
+    If checkpoint is specified, it will furthermore load the checkpoint file.
+    The pkl file will be saved automatically when calling Trainer.store_checkpoint.
     :param pkl_file:
     :param checkpoint:
     :param train:
@@ -42,19 +41,16 @@ def search_and_load_model(pkl_file, checkpoint=None, train=False):
     init = info['init']
     name = info['name']
     search_in = join(UNet.__path__[0], "training", "net_training")
-    tr = recursive_find_trainer([search_in], name, current_module="UNet.training.net_training")
+    tr = recursive_find_trainer([search_in], name, current_module="training.trainer")
     if tr is None:
-        raise RuntimeError("Could not find the model trainer specified in checkpoint in UNet.trainig.trainer. If it "
-                           "is not located there, please move it or change the code of search_and_load_model. Your model "
-                           "trainer can be located in any directory within UNet.trainig.net_training (search is recursive)."
+        raise RuntimeError("Could not find the model trainer specified in checkpoint in trainig.trainer. "
                            "\nDebug info: \ncheckpoint file: %s\nName of trainer: %s " % (checkpoint, name))
-    assert issubclass(tr, Trainer), "The net trainer was found but is not a subclass of Trainer. " \
-                                          "Please make it so!"
-
+                           
+    assert issubclass(tr, Trainer), "The net trainer was found but is not a subclass of Trainer. " 
+    
     if len(init) == 7:
-        print("warning: this model seems to have been saved with a previous version of UNet. Attempting to load it "
-              "anyways. Expect the unexpected.")
-        print("manually editing init args...")
+        print("warning: this model seems to have been saved with a previous version. Attempting to load it anyways.")
+
         init = [init[i] for i in range(len(init)) if i != 2]
 
     # init[0] is the plans file. This argument needs to be replaced because the original plans file may not exist
@@ -74,11 +70,11 @@ def load_best_model_for_inference(folder):
 
 def load_model_and_checkpoint_files(folder, folds=None):
     """
-    used for if you need to ensemble the five models of a cross-validation. This will restore the model from the
-    checkpoint in fold 0, load all parameters of the five folds in ram and return both. This will allow for fast
-    switching between parameters (as opposed to loading them form disk each time).
+    used for ensemble the five models of a cross-validation. This will restore the model from the
+    checkpoint in fold 0, load all parameters of the five folds in ram and return both. 
+    This will allow for fast switching between parameters
 
-    This is best used for inference and test prediction
+    used for inference and test prediction
     :param folder:
     :return:
     """
@@ -113,7 +109,7 @@ def load_model_and_checkpoint_files(folder, folds=None):
 
 
 if __name__ == "__main__":
-    pkl = "/home/simon/med/results/UNetV2/UNetV2_3D_fullres/Task04_Hippocampus/fold0/model_best.model.pkl"
+    pkl = "/home/simon/med/results/UNetV2/UNetV2_3D_fullres/Task_Hippocampus/fold0/model_best.model.pkl"
     checkpoint = pkl[:-4]
     train = False
     trainer = search_and_load_model(pkl, checkpoint, train)

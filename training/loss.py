@@ -7,7 +7,6 @@ class SoftDiceLoss(nn.Module):
     def __init__(self, smooth=1., apply_nonlin=None, batch_dice=False, do_bg=True, smooth_in_nom=True,
                  background_weight=1, rebalance_weights=None, square_nominator=False, square_denom=False):
         """
-        hahaa no documentation for you today
         :param smooth:
         :param apply_nonlin:
         :param batch_dice:
@@ -20,7 +19,7 @@ class SoftDiceLoss(nn.Module):
         self.square_denom = square_denom
         self.square_nominator = square_nominator
         if not do_bg:
-            assert background_weight == 1, "if there is no bg, then set background weight to 1 you dummy"
+            assert background_weight == 1, "if there is no bg, then set background weight to 1"
         self.rebalance_weights = rebalance_weights
         self.background_weight = background_weight
         if smooth_in_nom:
@@ -42,7 +41,7 @@ class SoftDiceLoss(nn.Module):
             x = self.apply_nonlin(x)
         if len(shp_x) != len(shp_y):
             y = y.view((shp_y[0], 1, *shp_y[1:]))
-        # now x and y should have shape (B, C, X, Y(, Z))) and (B, 1, X, Y(, Z))), respectively
+        #  x and y should have shape (B, C, X, Y(, Z))) and (B, 1, X, Y(, Z))), respectively
         y_onehot = torch.zeros(shp_x)
         if x.device.type == "cuda":
             y_onehot = y_onehot.cuda(x.device.index)
@@ -118,7 +117,7 @@ def softmax_helper(x):
 
 class CrossentropyND(torch.nn.CrossEntropyLoss):
     """
-    Network has to have NO NONLINEARITY!
+    Network should have NO NONLINEARITY!
     """
     def forward(self, inp, target):
         target = target.long()
@@ -152,5 +151,5 @@ class DC_and_CE_loss(nn.Module):
         if self.aggregate == "sum":
             result = ce_loss + dc_loss
         else:
-            raise NotImplementedError("nah son") # reserved for other stuff (later)
+            raise NotImplementedError("reserved for future stuff.") 
         return result

@@ -249,7 +249,7 @@ class GenericTrainer(object):
 
         new_state_dict = OrderedDict()
         curr_state_dict_keys = list(self.net.state_dict().keys())
-        # if state dict comes form nn.DataParallel but we use non-parallel model here then the state dict keys do not
+        # if state dict comes form nn.DataParallel but use non-parallel model here then the state dict keys do not
         # match. Use heuristic to make it match
         for k, value in saved_model['state_dict'].items():
             key = k
@@ -269,8 +269,8 @@ class GenericTrainer(object):
 
     def do_training(self):
         if cudnn.benchmark and cudnn.deterministic:
-            warn("torch.backends.cudnn.deterministic is True indicating a deterministic training is desired. "
-                 "But torch.backends.cudnn.benchmark is True as well and this will prevent deterministic training! "
+            warn("Both torch.backends.cudnn.deterministic and torch.backends.cudnn.benchmark are set True,"
+                 "this will prevent deterministic training! "
                  "If you want deterministic then set benchmark=False")
 
         maybe_mkdir_p(self.output_folder)
@@ -325,7 +325,7 @@ class GenericTrainer(object):
 
             self.epoch += 1
         self.store_checkpoint(join(self.output_folder, "model_final_checkpoint.model"))
-        # now we can delete latest as it will be identical with final
+        # delete latest as it will be identical with final
         if isfile(join(self.output_folder, "model_latest.model")):
             os.remove(join(self.output_folder, "model_latest.model"))
         if isfile(join(self.output_folder, "model_latest.model.pkl")):
@@ -420,8 +420,8 @@ class GenericTrainer(object):
         return continue_training
 
     def on_epoch_end(self):
-        self.finish_online_evaluation() # does not have to do anything, but can be used to update self.all_val_eval_
-        # metrics
+        # update self.all_val_eval_metrics
+        self.finish_online_evaluation() 
 
         self.plot_progress()
 
@@ -490,7 +490,7 @@ class GenericTrainer(object):
 
     def find_lr(self, num_iters=1000, init_value=1e-6, final_value=10., beta=0.98):
         """
-        stolen and adapted from here: https://sgugger.github.io/how-do-you-find-a-good-learning-rate.html
+        refer and adapted from here: https://sgugger.github.io/how-do-you-find-a-good-learning-rate.html
         :param num_iters:
         :param init_value:
         :param final_value:
