@@ -190,7 +190,7 @@ def import_module(name, path):
 
 class ModelSelector:
     '''
-    saves a checkpoint after each epoch as 'last_state' (can be loaded to continue interrupted training).
+    saves a checkpoint after each epoch as 'last_state'.
     saves the top-k (k=cf.save_n_models) ranked epochs. 
     In inference, predictions of multiple epochs can be ensembled to improve performance.
     '''
